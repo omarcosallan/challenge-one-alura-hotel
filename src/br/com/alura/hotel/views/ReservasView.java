@@ -332,7 +332,7 @@ public class ReservasView extends JFrame {
 			String dataS = sdf.format(txtDataS.getDate());
 			Reserva reserva = new Reserva(dataE, dataS, Double.parseDouble(txtValor.getText()),
 					(String) txtFormaPagamento.getSelectedItem());
-			reservaController.reserva(reserva);
+			reservaController.salvar(reserva);
 			JOptionPane.showMessageDialog(null, "Cadastro bem-sucedido.");
 			RegistroHospede registro = new RegistroHospede(reserva);
 			registro.setVisible(true);

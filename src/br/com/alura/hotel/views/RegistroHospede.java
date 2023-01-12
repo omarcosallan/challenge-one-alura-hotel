@@ -320,14 +320,12 @@ public class RegistroHospede extends JFrame {
 		btnsalvar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (txtNome.getText() != null
-						&& txtSobrenome.getText() != null
-						&& txtDataN.getDate() != null
-						&& (String) txtNacionalidade.getSelectedItem() != null
-						&& txtTelefone.getText() != null
+				if (txtNome.getText() != null && txtSobrenome.getText() != null && txtDataN.getDate() != null
+						&& (String) txtNacionalidade.getSelectedItem() != null && txtTelefone.getText() != null
 						&& txtNreserva.getText() != null) {
 					salvar();
-					JOptionPane.showMessageDialog(null, "Cadastro bem-sucedido. O número da sua reserva é: " + txtNreserva.getText());
+					JOptionPane.showMessageDialog(null,
+							"Cadastro bem-sucedido. O número da sua reserva é: " + txtNreserva.getText());
 					Buscar buscar = new Buscar();
 					buscar.setVisible(true);
 					dispose();
@@ -367,8 +365,7 @@ public class RegistroHospede extends JFrame {
 	}
 
 	private void salvar() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String dataN = sdf.format(txtDataN.getDate());
+		String dataN = new SimpleDateFormat("yyyy-MM-dd").format(txtDataN.getDate());
 		Hospede hospede = new Hospede(txtNome.getText(), txtSobrenome.getText(), dataN,
 				(String) txtNacionalidade.getSelectedItem(), txtTelefone.getText(),
 				Integer.parseInt(txtNreserva.getText()));

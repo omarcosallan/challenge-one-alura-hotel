@@ -20,7 +20,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import br.com.alura.hotel.controller.UsuarioController;
+import br.com.alura.hotel.controller.SistemaInterno;
+import br.com.alura.hotel.modelo.Administrador;
 
 public class Login extends JFrame {
 
@@ -33,7 +34,7 @@ public class Login extends JFrame {
 	private JPasswordField txtSenha;
 	int xMouse, yMouse;
 	private JLabel labelExit;
-	private UsuarioController usuarioController;
+	private SistemaInterno usuarioController;
 
 	/**
 	 * Launch the application.
@@ -54,7 +55,7 @@ public class Login extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Login() {				
+	public Login() {
 		setResizable(false);
 		setUndecorated(true);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(MenuPrincipal.class.getResource("/imagenes/aH-40px.png")));
@@ -244,17 +245,14 @@ public class Login extends JFrame {
 	}
 
 	private void autenticar() {
-		String usuario = txtUsuario.getText();
-		String senha = new String(txtSenha.getPassword());
-		
-		this.usuarioController = new UsuarioController(usuario, senha);
-				
+		this.usuarioController = new SistemaInterno(
+				new Administrador(txtUsuario.getText(), txtSenha.getText()));
 		if (this.usuarioController.login()) {
 			MenuUsuario menu = new MenuUsuario();
 			menu.setVisible(true);
 			dispose();
 		} else {
-			JOptionPane.showMessageDialog(this, "Usuario ou Senha não válidos");
+			JOptionPane.showMessageDialog(this, "Usuário ou senha inválidos");
 		}
 	}
 

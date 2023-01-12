@@ -12,6 +12,7 @@ public class Reserva {
 	private String dataSaida;
 	private Double valor;
 	private String formaDePagamento;
+	private static final double DIARIA = 150.0;
 	
 	public Reserva(String dataEntrada, String dataSaida, Double valor, String formaDePagamento) {
 		this.dataEntrada = dataEntrada;
@@ -56,6 +57,11 @@ public class Reserva {
 	
 	public static double valor(String dataEntrada, String dataSaida) {
 		long dias = ChronoUnit.DAYS.between(LocalDate.parse(dataEntrada), LocalDate.parse(dataSaida)) + 1;
-		return dias * 150;
+		return dias * Reserva.DIARIA;
+	}
+	
+	@Override
+	public String toString() {
+		return this.id + ", " + this.dataEntrada + ", " + this.valor + ", " + this.dataSaida + ", " + this.formaDePagamento;
 	}
 }
