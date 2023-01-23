@@ -4,7 +4,7 @@ import java.util.List;
 
 import br.com.alura.hotel.dao.DAO;
 
-public class RepositoryController<T> {
+public class Repository<T> {
 	
 	protected DAO<T> dao;
 	

@@ -7,6 +7,8 @@ import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -283,7 +285,7 @@ public class Buscar extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				int reservasSelecionadas = tbReservas.getSelectedRow();
-				int hoespedesSelecionados = tbHospedes.getSelectedRow();
+				int hospedesSelecionados = tbHospedes.getSelectedRow();
 
 				if (reservasSelecionadas >= 0) {
 					int confirmar = JOptionPane.showConfirmDialog(null, "Deseja mesmo deletar os dados?");
@@ -300,13 +302,14 @@ public class Buscar extends JFrame {
 									"Você possui um hospede cadastrado para essa reserva. Se deseja continuar, deverá excluí-lo primeiro.");
 						}
 					}
-				} else if (hoespedesSelecionados >= 0) {
+				} else if (hospedesSelecionados >= 0) {
 					Object selecionado = (Object) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(),
 							tbHospedes.getSelectedColumn());
 					if (selecionado instanceof Integer) {
 						Integer id = (Integer) selecionado;
 						hospedeController.deletar(id);
 						JOptionPane.showMessageDialog(null, "Item excluído com sucesso!");
+						preencherHospedes();
 					} else {
 						JOptionPane.showMessageDialog(null, "Por favor, selecionar o ID");
 					}
@@ -344,9 +347,10 @@ public class Buscar extends JFrame {
 		try {
 			limparTabelaReservas();
 			List<Reserva> reservas = listaReservas();
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 			for (Reserva reserva : reservas) {
-				modelo.addRow(new Object[] { reserva.getId(), reserva.getDataEntrada(), reserva.getDataSaida(),
-						reserva.valorFormatado(), reserva.getFormaDePagamento() });
+				modelo.addRow(new Object[] { reserva.getId(), reserva.getDataEntrada(sdf), reserva.getDataSaida(sdf),
+						reserva.getValor(getLocale()), reserva.getFormaDePagamento() });
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -360,12 +364,19 @@ public class Buscar extends JFrame {
 	private void editarReserva() {
 		Object selecionado = (Object) modelo.getValueAt(tbReservas.getSelectedRow(), 0);
 		if (selecionado instanceof Integer) {
+			SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
+			SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
 			String dataEntrada = (String) modelo.getValueAt(tbReservas.getSelectedRow(), 1);
 			String dataSaida = (String) modelo.getValueAt(tbReservas.getSelectedRow(), 2);
-			Double valor = Reserva.valor(dataEntrada, dataSaida);
 			String formaPagamento = (String) modelo.getValueAt(tbReservas.getSelectedRow(), 4);
-			Reserva reserva = new Reserva((Integer) selecionado, dataEntrada, dataSaida, valor, formaPagamento);
-			this.reservaController.alterar(reserva);
+			try {
+				Double valor = Reserva.valor(sdf2.format(sdf1.parse(dataEntrada)), sdf2.format(sdf1.parse(dataSaida)));
+				Reserva reserva = new Reserva((Integer) selecionado, sdf2.format(sdf1.parse(dataEntrada)),
+						sdf2.format(sdf1.parse(dataSaida)), valor, formaPagamento);
+				this.reservaController.alterar(reserva);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
 			JOptionPane.showMessageDialog(this, "Item editado com sucesso!");
 		} else {
 			JOptionPane.showMessageDialog(this, "Por favor, selecionar o ID");
@@ -389,9 +400,10 @@ public class Buscar extends JFrame {
 		try {
 			limparTabelaHospedes();
 			List<Hospede> hospedes = listaHospedes();
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 			hospedes.forEach(hospede -> {
 				modeloHospedes.addRow(new Object[] { hospede.getId(), hospede.getNome(), hospede.getSobrenome(),
-						hospede.getDataNascimento(), hospede.getNacionalidade(), hospede.getTelefone(),
+						hospede.getDataNascimento(sdf), hospede.getNacionalidade(), hospede.getTelefone(),
 						hospede.getIdReserva() });
 			});
 		} catch (Exception e) {
@@ -406,15 +418,21 @@ public class Buscar extends JFrame {
 	private void editarHospede() {
 		Object selecionado = (Object) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 0);
 		if (selecionado instanceof Integer) {
+			SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
+			SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
 			String nome = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 1);
 			String sobrenome = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 2);
 			String dataNascimento = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 3);
 			String nacionalidade = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 4);
 			String telefone = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 5);
 			Integer idReserva = (Integer) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 6);
-			Hospede hospede = new Hospede((Integer) selecionado, nome, sobrenome, dataNascimento, nacionalidade,
-					telefone, idReserva);
-			this.hospedeController.alterar(hospede);
+			try {
+				Hospede hospede = new Hospede((Integer) selecionado, nome, sobrenome, sdf2.format(sdf1.parse(dataNascimento)), nacionalidade,
+						telefone, idReserva);
+				this.hospedeController.alterar(hospede);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
 			JOptionPane.showMessageDialog(this, "Item editado com sucesso!");
 		} else {
 			JOptionPane.showMessageDialog(this, "Por favor, selecionar o ID");

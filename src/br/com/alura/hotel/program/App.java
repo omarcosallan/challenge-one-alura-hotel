@@ -1,3 +1,4 @@
+package br.com.alura.hotel.program;
 import java.awt.EventQueue;
 
 import br.com.alura.hotel.views.MenuPrincipal;

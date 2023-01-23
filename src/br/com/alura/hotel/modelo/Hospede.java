@@ -1,5 +1,8 @@
 package br.com.alura.hotel.modelo;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+
 public class Hospede extends Pessoa {
 
 	private Integer id;
@@ -29,6 +32,10 @@ public class Hospede extends Pessoa {
 		return this.idReserva;
 	}
 
+	public String getDataNascimento(SimpleDateFormat sdf) {
+		return sdf.format(Date.valueOf(this.dataNascimento));
+	}
+	
 	@Override
 	public String toString() {
 		return "Hóspede: " + super.toString();

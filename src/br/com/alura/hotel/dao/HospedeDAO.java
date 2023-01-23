@@ -93,7 +93,6 @@ public class HospedeDAO implements DAO<Hospede> {
 				preparedStatement.setString(5, hospede.getTelefone());
 				preparedStatement.setInt(6, hospede.getId());
 				preparedStatement.execute();
-				System.out.println("editado");
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
