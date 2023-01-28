@@ -1,10 +1,10 @@
-package br.com.alura.hotel.controller;
+package br.com.alura.hotel.jdbc.controller;
 
 import java.sql.Connection;
 
-import br.com.alura.hotel.dao.SistemaInternoDAO;
-import br.com.alura.hotel.factory.ConnectionFactory;
-import br.com.alura.hotel.modelo.Autenticavel;
+import br.com.alura.hotel.jdbc.dao.SistemaInternoDAO;
+import br.com.alura.hotel.jdbc.factory.ConnectionFactory;
+import br.com.alura.hotel.jdbc.modelo.Autenticavel;
 
 public class SistemaInterno {
 

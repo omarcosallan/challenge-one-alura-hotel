@@ -1,14 +1,15 @@
-package br.com.alura.hotel.dao;
+package br.com.alura.hotel.jdbc.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.alura.hotel.modelo.Reserva;
+import br.com.alura.hotel.jdbc.modelo.Reserva;
 
 public class ReservaDAO implements DAO<Reserva> {
 
@@ -38,8 +39,8 @@ public class ReservaDAO implements DAO<Reserva> {
 		String sql = "INSERT INTO reservas (DATA_ENTRADA, DATA_SAIDA, VALOR, FORMA_PAGAMENTO) VALUES (?, ?, ?, ?);";
 		try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql,
 				Statement.RETURN_GENERATED_KEYS)) {
-			preparedStatement.setString(1, reserva.getDataEntrada());
-			preparedStatement.setString(2, reserva.getDataSaida());
+			preparedStatement.setString(1, reserva.getDataEntrada().toString());
+			preparedStatement.setString(2, reserva.getDataSaida().toString());
 			preparedStatement.setDouble(3, reserva.getValor());
 			preparedStatement.setString(4, reserva.getFormaDePagamento());
 			preparedStatement.execute();
@@ -88,8 +89,8 @@ public class ReservaDAO implements DAO<Reserva> {
 		try {
 			String sql = "UPDATE reservas SET DATA_ENTRADA = ?, DATA_SAIDA = ?, VALOR = ?, FORMA_PAGAMENTO = ? WHERE ID = ?";
 			try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
-				preparedStatement.setString(1, reserva.getDataEntrada());
-				preparedStatement.setString(2, reserva.getDataSaida());
+				preparedStatement.setString(1, reserva.getDataEntrada().toString());
+				preparedStatement.setString(2, reserva.getDataSaida().toString());
 				preparedStatement.setDouble(3, reserva.getValor());
 				preparedStatement.setString(4, reserva.getFormaDePagamento());
 				preparedStatement.setInt(5, reserva.getId());
@@ -103,8 +104,8 @@ public class ReservaDAO implements DAO<Reserva> {
 	public List<Reserva> converteResult(List<Reserva> reservas, PreparedStatement preparedStatement) {
 		try (ResultSet result = preparedStatement.getResultSet()) {
 			while (result.next()) {
-				Reserva reserva = new Reserva(result.getInt(1), result.getString(2), result.getString(3),
-						result.getDouble(4), result.getString(5));
+				Reserva reserva = new Reserva(result.getInt(1), LocalDate.parse(result.getString(2)),
+						LocalDate.parse(result.getString(3)), result.getDouble(4), result.getString(5));
 				reservas.add(reserva);
 			}
 			return reservas;

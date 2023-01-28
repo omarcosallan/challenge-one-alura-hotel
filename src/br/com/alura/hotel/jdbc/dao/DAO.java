@@ -1,4 +1,4 @@
-package br.com.alura.hotel.dao;
+package br.com.alura.hotel.jdbc.dao;
 
 import java.util.List;
 

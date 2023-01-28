@@ -1,14 +1,15 @@
-package br.com.alura.hotel.dao;
+package br.com.alura.hotel.jdbc.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.alura.hotel.modelo.Hospede;
+import br.com.alura.hotel.jdbc.modelo.Hospede;
 
 public class HospedeDAO implements DAO<Hospede> {
 
@@ -36,7 +37,7 @@ public class HospedeDAO implements DAO<Hospede> {
 		try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			preparedStatement.setString(1, hospede.getNome());
 			preparedStatement.setString(2, hospede.getSobrenome());
-			preparedStatement.setString(3, hospede.getDataNascimento());
+			preparedStatement.setString(3, hospede.getDataNascimento().toString());
 			preparedStatement.setString(4, hospede.getNacionalidade());
 			preparedStatement.setString(5, hospede.getTelefone());
 			preparedStatement.setInt(6, hospede.getIdReserva());
@@ -88,7 +89,7 @@ public class HospedeDAO implements DAO<Hospede> {
 			try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
 				preparedStatement.setString(1, hospede.getNome());
 				preparedStatement.setString(2, hospede.getSobrenome());
-				preparedStatement.setString(3, hospede.getDataNascimento());
+				preparedStatement.setString(3, hospede.getDataNascimento().toString());
 				preparedStatement.setString(4, hospede.getNacionalidade());
 				preparedStatement.setString(5, hospede.getTelefone());
 				preparedStatement.setInt(6, hospede.getId());
@@ -103,7 +104,7 @@ public class HospedeDAO implements DAO<Hospede> {
 		try (ResultSet result = preparedStatement.getResultSet()) {
 			while (result.next()) {
 				Hospede hospede = new Hospede(result.getInt(1), result.getString(2), result.getString(3),
-						result.getString(4), result.getString(5), result.getString(6), result.getInt(7));
+						LocalDate.parse(result.getString(4)), result.getString(5), result.getString(6), result.getInt(7));
 				hospedes.add(hospede);
 			}
 			return hospedes;

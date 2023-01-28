@@ -1,4 +1,4 @@
-package br.com.alura.hotel.modelo;
+package br.com.alura.hotel.jdbc.modelo;
 
 import java.sql.PreparedStatement;
 

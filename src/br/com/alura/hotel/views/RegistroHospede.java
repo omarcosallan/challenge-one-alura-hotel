@@ -7,7 +7,8 @@ import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -23,9 +24,9 @@ import javax.swing.border.EmptyBorder;
 
 import com.toedter.calendar.JDateChooser;
 
-import br.com.alura.hotel.controller.HospedeController;
-import br.com.alura.hotel.modelo.Hospede;
-import br.com.alura.hotel.modelo.Reserva;
+import br.com.alura.hotel.jdbc.controller.HospedeController;
+import br.com.alura.hotel.jdbc.modelo.Hospede;
+import br.com.alura.hotel.jdbc.modelo.Reserva;
 
 @SuppressWarnings("serial")
 public class RegistroHospede extends JFrame {
@@ -320,19 +321,16 @@ public class RegistroHospede extends JFrame {
 		btnsalvar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (txtNome.getText() != null && txtSobrenome.getText() != null && txtDataN.getDate() != null
-						&& (String) txtNacionalidade.getSelectedItem() != null && txtTelefone.getText() != null
-						&& txtNreserva.getText() != null) {
+				try {
 					salvar();
-					JOptionPane.showMessageDialog(null,
-							"Cadastro bem-sucedido. O número da sua reserva é: " + txtNreserva.getText());
 					Buscar buscar = new Buscar();
 					buscar.setVisible(true);
 					dispose();
-				} else {
-					JOptionPane.showMessageDialog(null, "Deve preencher todos os campos.");
+				} catch (IllegalArgumentException ex) {
+					JOptionPane.showMessageDialog(null, ex.getMessage());
+				} catch (NullPointerException ex) {
+					JOptionPane.showMessageDialog(null, "Data de nascimento deve ser preenchido");
 				}
-
 			}
 		});
 		btnsalvar.setLayout(null);
@@ -365,11 +363,13 @@ public class RegistroHospede extends JFrame {
 	}
 
 	private void salvar() {
-		String dataN = new SimpleDateFormat("yyyy-MM-dd").format(txtDataN.getDate());
+		LocalDate dataN = txtDataN.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 		Hospede hospede = new Hospede(txtNome.getText(), txtSobrenome.getText(), dataN,
 				(String) txtNacionalidade.getSelectedItem(), txtTelefone.getText(),
 				Integer.parseInt(txtNreserva.getText()));
 		this.hospedeController.salvar(hospede);
+		JOptionPane.showMessageDialog(null,
+				"Cadastro bem-sucedido. O número da sua reserva é: " + txtNreserva.getText());
 	}
 
 	// Código que permite movimentar a janela pela tela seguindo a posição de "x" y

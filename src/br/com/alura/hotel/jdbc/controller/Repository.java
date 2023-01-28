@@ -1,8 +1,8 @@
-package br.com.alura.hotel.controller;
+package br.com.alura.hotel.jdbc.controller;
 
 import java.util.List;
 
-import br.com.alura.hotel.dao.DAO;
+import br.com.alura.hotel.jdbc.dao.DAO;
 
 public class Repository<T> {
 	

@@ -1,4 +1,4 @@
-package br.com.alura.hotel.factory;
+package br.com.alura.hotel.jdbc.factory;
 
 import java.sql.Connection;
 import java.sql.SQLException;

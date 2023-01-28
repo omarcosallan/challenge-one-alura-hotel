@@ -1,20 +1,28 @@
-package br.com.alura.hotel.modelo;
+package br.com.alura.hotel.jdbc.modelo;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.temporal.ChronoUnit;
 
 public abstract class Pessoa {
 
 	protected String nome;
 	protected String sobrenome;
-	protected String dataNascimento;
+	protected LocalDate dataNascimento;
 	protected String nacionalidade;
 	protected String telefone;
 
 	public Pessoa() {
 	}
 
-	public Pessoa(String nome, String sobrenome, String dataNascimento, String nacionalidade, String telefone) {
+	public Pessoa(String nome, String sobrenome, LocalDate dataNascimento, String nacionalidade, String telefone) {
+		if (ChronoUnit.YEARS.between(dataNascimento.atStartOfDay(), LocalDate.now().atStartOfDay()) <= 18) {
+			throw new IllegalArgumentException("Data de nascimento inválida, a pessoa deve ser maior de 18 anos.");
+		}
+		if (nome.equals("") || sobrenome.equals("") || dataNascimento.equals(null) || nacionalidade.equals("")
+				|| telefone.equals("")) {
+			throw new IllegalArgumentException("Preencha todos os campos");
+		}
 		this.nome = nome;
 		this.sobrenome = sobrenome;
 		this.dataNascimento = dataNascimento;
@@ -30,12 +38,12 @@ public abstract class Pessoa {
 		return this.sobrenome;
 	}
 
-	public String getDataNascimento() {
+	public LocalDate getDataNascimento() {
 		return this.dataNascimento;
 	}
 
 	public int getIdade() {
-		return Period.between(LocalDate.parse(this.dataNascimento), LocalDate.now()).getYears();
+		return Period.between(this.dataNascimento, LocalDate.now()).getYears();
 	}
 
 	public String getNacionalidade() {

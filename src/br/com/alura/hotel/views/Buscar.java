@@ -7,8 +7,8 @@ import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -26,10 +26,10 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-import br.com.alura.hotel.controller.HospedeController;
-import br.com.alura.hotel.controller.ReservaController;
-import br.com.alura.hotel.modelo.Hospede;
-import br.com.alura.hotel.modelo.Reserva;
+import br.com.alura.hotel.jdbc.controller.HospedeController;
+import br.com.alura.hotel.jdbc.controller.ReservaController;
+import br.com.alura.hotel.jdbc.modelo.Hospede;
+import br.com.alura.hotel.jdbc.modelo.Reserva;
 
 @SuppressWarnings("serial")
 public class Buscar extends JFrame {
@@ -45,6 +45,7 @@ public class Buscar extends JFrame {
 	int xMouse, yMouse;
 	private ReservaController reservaController;
 	private HospedeController hospedeController;
+	DateTimeFormatter dtf1 = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
 	/**
 	 * Launch the application.
@@ -259,11 +260,21 @@ public class Buscar extends JFrame {
 				int hoespedesSelecionados = tbHospedes.getSelectedRow();
 
 				if (reservasSelecionadas >= 0) {
-					editarReserva();
-					preencherReservas();
+					try {
+						editarReserva();
+					} catch (IllegalArgumentException ex) {
+						JOptionPane.showMessageDialog(null, ex.getMessage());
+					} finally {
+						preencherReservas();
+					}
 				} else if (hoespedesSelecionados >= 0) {
-					editarHospede();
-					preencherHospedes();
+					try {
+						editarHospede();
+					} catch (IllegalArgumentException ex) {
+						JOptionPane.showMessageDialog(null, ex.getMessage());
+					} finally {
+						preencherHospedes();
+					}
 				}
 			}
 		});
@@ -347,10 +358,10 @@ public class Buscar extends JFrame {
 		try {
 			limparTabelaReservas();
 			List<Reserva> reservas = listaReservas();
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 			for (Reserva reserva : reservas) {
-				modelo.addRow(new Object[] { reserva.getId(), reserva.getDataEntrada(sdf), reserva.getDataSaida(sdf),
-						reserva.getValor(getLocale()), reserva.getFormaDePagamento() });
+				modelo.addRow(new Object[] { reserva.getId(), dtf1.format(reserva.getDataEntrada()),
+						dtf1.format(reserva.getDataSaida()), reserva.getValor(getLocale()),
+						reserva.getFormaDePagamento() });
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -364,19 +375,13 @@ public class Buscar extends JFrame {
 	private void editarReserva() {
 		Object selecionado = (Object) modelo.getValueAt(tbReservas.getSelectedRow(), 0);
 		if (selecionado instanceof Integer) {
-			SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
-			SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
 			String dataEntrada = (String) modelo.getValueAt(tbReservas.getSelectedRow(), 1);
 			String dataSaida = (String) modelo.getValueAt(tbReservas.getSelectedRow(), 2);
 			String formaPagamento = (String) modelo.getValueAt(tbReservas.getSelectedRow(), 4);
-			try {
-				Double valor = Reserva.valor(sdf2.format(sdf1.parse(dataEntrada)), sdf2.format(sdf1.parse(dataSaida)));
-				Reserva reserva = new Reserva((Integer) selecionado, sdf2.format(sdf1.parse(dataEntrada)),
-						sdf2.format(sdf1.parse(dataSaida)), valor, formaPagamento);
-				this.reservaController.alterar(reserva);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
+			Double valor = Reserva.valor(LocalDate.parse(dataEntrada, dtf1), LocalDate.parse(dataSaida, dtf1));
+			Reserva reserva = new Reserva((Integer) selecionado, LocalDate.parse(dataEntrada, dtf1),
+					LocalDate.parse(dataSaida, dtf1), valor, formaPagamento);
+			this.reservaController.alterar(reserva);
 			JOptionPane.showMessageDialog(this, "Item editado com sucesso!");
 		} else {
 			JOptionPane.showMessageDialog(this, "Por favor, selecionar o ID");
@@ -400,14 +405,13 @@ public class Buscar extends JFrame {
 		try {
 			limparTabelaHospedes();
 			List<Hospede> hospedes = listaHospedes();
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 			hospedes.forEach(hospede -> {
 				modeloHospedes.addRow(new Object[] { hospede.getId(), hospede.getNome(), hospede.getSobrenome(),
-						hospede.getDataNascimento(sdf), hospede.getNacionalidade(), hospede.getTelefone(),
+						dtf1.format(hospede.getDataNascimento()), hospede.getNacionalidade(), hospede.getTelefone(),
 						hospede.getIdReserva() });
 			});
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		} catch (IllegalArgumentException e) {
+			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
 	}
 
@@ -418,21 +422,15 @@ public class Buscar extends JFrame {
 	private void editarHospede() {
 		Object selecionado = (Object) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 0);
 		if (selecionado instanceof Integer) {
-			SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
-			SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
 			String nome = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 1);
 			String sobrenome = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 2);
 			String dataNascimento = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 3);
 			String nacionalidade = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 4);
 			String telefone = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 5);
 			Integer idReserva = (Integer) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 6);
-			try {
-				Hospede hospede = new Hospede((Integer) selecionado, nome, sobrenome, sdf2.format(sdf1.parse(dataNascimento)), nacionalidade,
-						telefone, idReserva);
-				this.hospedeController.alterar(hospede);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
+			Hospede hospede = new Hospede((Integer) selecionado, nome, sobrenome, LocalDate.parse(dataNascimento, dtf1),
+					nacionalidade, telefone, idReserva);
+			this.hospedeController.alterar(hospede);
 			JOptionPane.showMessageDialog(this, "Item editado com sucesso!");
 		} else {
 			JOptionPane.showMessageDialog(this, "Por favor, selecionar o ID");

@@ -1,10 +1,10 @@
-package br.com.alura.hotel.dao;
+package br.com.alura.hotel.jdbc.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import br.com.alura.hotel.modelo.Autenticavel;
+import br.com.alura.hotel.jdbc.modelo.Autenticavel;
 
 public class SistemaInternoDAO {
 

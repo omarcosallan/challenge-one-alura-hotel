@@ -1,20 +1,19 @@
-package br.com.alura.hotel.modelo;
+package br.com.alura.hotel.jdbc.modelo;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 
 public class Hospede extends Pessoa {
 
 	private Integer id;
 	private Integer idReserva;
 
-	public Hospede(String nome, String sobrenome, String dataNascimento, String nacionalidade, String telefone,
+	public Hospede(String nome, String sobrenome, LocalDate dataNascimento, String nacionalidade, String telefone,
 			Integer idReserva) {
 		super(nome, sobrenome, dataNascimento, nacionalidade, telefone);
 		this.idReserva = idReserva;
 	}
 
-	public Hospede(Integer id, String nome, String sobrenome, String dataNascimento, String nacionalidade,
+	public Hospede(Integer id, String nome, String sobrenome, LocalDate dataNascimento, String nacionalidade,
 			String telefone, Integer idReserva) {
 		this(nome, sobrenome, dataNascimento, nacionalidade, telefone, idReserva);
 		this.id = id;
@@ -32,8 +31,8 @@ public class Hospede extends Pessoa {
 		return this.idReserva;
 	}
 
-	public String getDataNascimento(SimpleDateFormat sdf) {
-		return sdf.format(Date.valueOf(this.dataNascimento));
+	public LocalDate getDataNascimento() {
+		return this.dataNascimento;
 	}
 	
 	@Override

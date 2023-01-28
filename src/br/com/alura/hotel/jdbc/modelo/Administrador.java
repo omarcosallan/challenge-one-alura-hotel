@@ -1,8 +1,9 @@
-package br.com.alura.hotel.modelo;
+package br.com.alura.hotel.jdbc.modelo;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 public class Administrador extends Pessoa implements Autenticavel {
 
@@ -14,7 +15,7 @@ public class Administrador extends Pessoa implements Autenticavel {
 		this.password = password;
 	}
 
-	public Administrador(String nome, String sobrenome, String dataNascimento, String nacionalidade,
+	public Administrador(String nome, String sobrenome, LocalDate dataNascimento, String nacionalidade,
 			String telefone) {
 		super(nome, sobrenome, dataNascimento, nacionalidade, telefone);
 	}

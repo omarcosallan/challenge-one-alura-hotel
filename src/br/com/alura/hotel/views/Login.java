@@ -20,8 +20,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import br.com.alura.hotel.controller.SistemaInterno;
-import br.com.alura.hotel.modelo.Administrador;
+import br.com.alura.hotel.jdbc.controller.SistemaInterno;
+import br.com.alura.hotel.jdbc.modelo.Administrador;
 
 public class Login extends JFrame {
 

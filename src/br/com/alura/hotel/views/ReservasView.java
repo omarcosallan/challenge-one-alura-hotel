@@ -10,7 +10,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -27,8 +29,8 @@ import javax.swing.border.LineBorder;
 
 import com.toedter.calendar.JDateChooser;
 
-import br.com.alura.hotel.controller.ReservaController;
-import br.com.alura.hotel.modelo.Reserva;
+import br.com.alura.hotel.jdbc.controller.ReservaController;
+import br.com.alura.hotel.jdbc.modelo.Reserva;
 
 @SuppressWarnings("serial")
 public class ReservasView extends JFrame {
@@ -43,6 +45,7 @@ public class ReservasView extends JFrame {
 	private JLabel lblValorSimbolo;
 	private JLabel labelAtras;
 	private ReservaController reservaController;
+	DateTimeFormatter dtf1 = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
 	/**
 	 * Launch the application.
@@ -118,6 +121,23 @@ public class ReservasView extends JFrame {
 		txtDataE.setDateFormatString("yyyy-MM-dd");
 		txtDataE.setFont(new Font("Roboto", Font.PLAIN, 18));
 		panel.add(txtDataE);
+		
+		txtDataE.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (txtDataE.getDate() != null && txtDataS.getDate() != null) {
+					try {
+						valorDiaria();
+					} catch (IllegalArgumentException e) {
+						txtValor.setText("");
+						JOptionPane.showMessageDialog(null, e.getMessage());
+					} catch (NullPointerException ex) {
+						txtValor.setText("");
+						JOptionPane.showMessageDialog(null, "Preencha todos os campos.");
+					}
+				}
+			}
+		});
 
 		lblValorSimbolo = new JLabel("R$");
 		lblValorSimbolo.setVisible(false);
@@ -165,9 +185,17 @@ public class ReservasView extends JFrame {
 		txtDataS.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
-				// Ativa o evento, após o usuário selecionar as datas, o valor da reserva deve
-				// ser calculado
-				valorDiaria();
+				if (txtDataE.getDate() != null && txtDataS.getDate() != null) {
+					try {
+						valorDiaria();
+					} catch (IllegalArgumentException e) {
+						txtValor.setText("");
+						JOptionPane.showMessageDialog(null, e.getMessage());
+					} catch (NullPointerException ex) {
+						txtValor.setText("");
+						JOptionPane.showMessageDialog(null, "Preencha todos os campos.");
+					}
+				}
 			}
 		});
 
@@ -308,7 +336,16 @@ public class ReservasView extends JFrame {
 		btnProximo.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				salvar();
+				try {
+					Reserva reserva = salvar();
+					RegistroHospede registro = new RegistroHospede(reserva);
+					registro.setVisible(true);
+					dispose();
+				} catch (IllegalArgumentException ex) {
+					JOptionPane.showMessageDialog(null, ex.getMessage());
+				} catch (NullPointerException ex) {
+					JOptionPane.showMessageDialog(null, "Preencha todos os campos.");
+				}
 			}
 		});
 		btnProximo.setLayout(null);
@@ -325,34 +362,19 @@ public class ReservasView extends JFrame {
 		btnProximo.add(lblSeguinte);
 	}
 
-	private void salvar() {
-		if (ReservasView.txtDataE.getDate() != null && ReservasView.txtDataS.getDate() != null) {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			String dataE = sdf.format(txtDataE.getDate());
-			String dataS = sdf.format(txtDataS.getDate());
-			Reserva reserva = new Reserva(dataE, dataS, Double.parseDouble(txtValor.getText()),
-					(String) txtFormaPagamento.getSelectedItem());
-			reservaController.salvar(reserva);
-			JOptionPane.showMessageDialog(null, "Cadastro bem-sucedido.");
-			RegistroHospede registro = new RegistroHospede(reserva);
-			registro.setVisible(true);
-			dispose();
-		} else {
-			JOptionPane.showMessageDialog(null, "Deve preencher todos os campos.");
-		}
+	private Reserva salvar() {
+		LocalDate dataE = txtDataE.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		LocalDate dataS = txtDataS.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		Reserva reserva = new Reserva(dataE, dataS, Double.parseDouble(txtValor.getText()),
+				(String) txtFormaPagamento.getSelectedItem());
+		reservaController.salvar(reserva);
+		return reserva;
 	}
 
 	private void valorDiaria() {
-		if (txtDataE.getDate() != null && txtDataS.getDate() != null) {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			String dataE = sdf.format(txtDataE.getDate());
-			String dataS = sdf.format(txtDataS.getDate());
-			if (txtDataE.getDate().compareTo(txtDataS.getDate()) > 0) {
-				JOptionPane.showMessageDialog(null, "A data de Check Out não pode ser anterior ao Check In.");
-			} else {
-				txtValor.setText(String.valueOf(Reserva.valor(dataE, dataS)));
-			}
-		}
+		LocalDate dataE = txtDataE.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		LocalDate dataS = txtDataS.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		txtValor.setText(String.valueOf(Reserva.valor(dataE, dataS)));
 	}
 
 	// Código que permite movimentar a janela pela tela seguindo a posição de "x" e
